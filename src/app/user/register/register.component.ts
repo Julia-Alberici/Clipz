@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import IUser from 'src/app/models/user.model';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -8,7 +9,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent  {
-constructor(private auth: AngularFireAuth) {}
+constructor(
+  private auth: AuthService
+) {}
 
 inSubmission = false;
 
@@ -20,7 +23,7 @@ inSubmission = false;
     Validators.required,
     Validators.email
   ])
-  age = new FormControl('', [
+  age = new FormControl<number | null>(null, [
     Validators.required,
     Validators.min(18),
     Validators.max(120)
@@ -57,12 +60,8 @@ inSubmission = false;
     this.alertColor = 'blue'
     this.inSubmission = true;
 
-    const { email, password } = this.registerForm.value;
     try {
-      const userCred = await this.auth.createUserWithEmailAndPassword(
-        email as string, password as string
-        )
-        console.log(userCred);
+      await this.auth.createUser(this.registerForm.value as IUser)
     } catch(e) {
         console.log(e)
         this.alertMsg = 'An unexpected error occurred. Please try again later.';
