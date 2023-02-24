@@ -48,7 +48,9 @@ export class UploadComponent implements OnInit {
 
   storeFile($event: Event) {
     this.isDragover = false;
-    const file = ($event as DragEvent).dataTransfer?.files.item(0) ?? null
+    const file = ($event as DragEvent).dataTransfer
+    ? ($event as DragEvent).dataTransfer?.files.item(0) ?? null
+    : ($event.target as HTMLInputElement).files?.item(0) ?? null
 
     if(!file || file.type !== 'video/mp4') {
       return
@@ -59,6 +61,7 @@ export class UploadComponent implements OnInit {
   }
 
   uploadFile() {
+    this.uploadForm.disable()
     const clipFileName = uuid()
     const clipPath = `clips/${clipFileName}.mp4`
     this.showUploadAlert = true
@@ -88,12 +91,12 @@ export class UploadComponent implements OnInit {
         }
 
         this.clipsService.createClip(clip)
-        console.log(clip)
         this.alertMsg = 'Success! Your clip is now ready to share with the world.'
         this.alertColor = 'green'
         this.showPercentage = false
       },
       error: (error) => {
+        this.uploadForm.enable();
           this.alertMsg = 'Upload failed! Please try again later.'
           this.alertColor = 'red'
         this.inSubmission = false
